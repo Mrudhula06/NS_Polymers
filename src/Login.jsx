@@ -13,7 +13,7 @@ const Login = () => {
     console.log("Success:", values);
     const formData = { email: values.email, password: values.password };
     try {
-      const response = await axios.post("http://localhost:3000/login", formData);
+      const response = await axios.post(`${import.meta.env.VITE_APP_API_KEY}/login`, formData);
       console.log(response.data);
       if (response.data.user) {
         localStorage.setItem("user", JSON.stringify(response.data));

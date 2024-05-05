@@ -11,7 +11,7 @@ const layout = {
 
 const AddProduct = ({ openDrawer, handleClose, setProducts, companies }) => {
   const [form] = Form.useForm();
-const getRandomNumber = () => {
+  const getRandomNumber = () => {
     // Generate a random number between 0 and 4
     const randomNumber = Math.floor(Math.random() * 5);
     // Add 1 to the random number to shift the range to 1-5
@@ -33,15 +33,15 @@ const getRandomNumber = () => {
         description: values.description,
         price: Number(values?.price),
         stock: Number(values?.stock),
-        star_rating: Number(getRandomNumber())
+        star_rating: Number(getRandomNumber()),
       };
       try {
         const response = await axios
-          .post("http://localhost:3000/product/add-product", formData)
+          .post(`${import.meta.env.VITE_APP_API_KEY}/product/add-product`, formData)
           .then(() => {
             handleClose();
             axios
-              .get("http://localhost:3000/product/get-products")
+              .get(`${import.meta.env.VITE_APP_API_KEY}/product/get-products`)
               .then((data) => {
                 console.log(data);
                 setProducts(data?.data?.products);

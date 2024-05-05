@@ -25,7 +25,7 @@ const Admin = () => {
   useEffect(() => {
     try {
       const response = axios
-        .get("http://localhost:3000/product/get-all-companies")
+        .get(`${import.meta.env.VITE_APP_API_KEY}/product/get-all-companies`)
         .then((data) => {
           console.log(data);
           setCompanies(
@@ -46,7 +46,7 @@ const Admin = () => {
   useEffect(() => {
     try {
       const response = axios
-        .get("http://localhost:3000/product/get-products")
+        .get(`${import.meta.env.VITE_APP_API_KEY}/product/get-products`)
         .then((data) => {
           console.log(data);
           setProducts(data?.data?.products);
@@ -68,7 +68,7 @@ const Admin = () => {
   };
 
   const updateStock = (product_name, stock) => {
-    axios.post("http://localhost:3000/product-settings/update-stock", {
+    axios.post(`${import.meta.env.VITE_APP_API_KEY}/product-settings/update-stock`, {
       product_name: product_name,
       stock: stock,
     });
@@ -114,13 +114,13 @@ const Admin = () => {
   const addCompany = async (values) => {
     try {
       const response = await axios
-        .post("http://localhost:3000/product/add-company", {
+        .post(`${import.meta.env.VITE_APP_API_KEY}/product/add-company`, {
           name: values,
         })
         .then(() => {
           handleClose();
           const response = axios
-            .get("http://localhost:3000/product/get-all-companies")
+            .get(`${import.meta.env.VITE_APP_API_KEY}/product/get-all-companies`)
             .then((data) => {
               console.log(data);
               setCompanies(
@@ -149,12 +149,12 @@ const Admin = () => {
 
   const handleDeleteProduct=()=>{
     const response = axios
-    .get(`http://localhost:3000/product/delete-product?productId=${productToDelete?._id}`)
+    .get(`${import.meta.env.VITE_APP_API_KEY}/product/delete-product?productId=${productToDelete?._id}`)
     .then((data) => {
       setOpenDeleteModal(false);
       try {
         const response = axios
-          .get("http://localhost:3000/product/get-products")
+          .get(`${import.meta.env.VITE_APP_API_KEY}/product/get-products`)
           .then((data) => {
             console.log(data);
             setProducts(data?.data?.products);

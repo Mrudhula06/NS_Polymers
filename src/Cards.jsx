@@ -63,7 +63,7 @@ const Cards = ({
   useEffect(() => {
     try {
       const response = axios
-        .get("http://localhost:3000/product/get-products")
+        .get(`${import.meta.env.VITE_APP_API_KEY}/product/get-products`)
         .then((data) => {
           console.log(data);
           setProducts(data?.data?.products);

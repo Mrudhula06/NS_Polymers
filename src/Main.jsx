@@ -88,7 +88,7 @@ const Main = () => {
     }
     localStorage.setItem("buy-products", JSON.stringify(addToCartInfo));
     axios
-      .post("http://localhost:3000/create-checkout-session", addToCartInfo)
+      .post(`${import.meta.env.VITE_APP_API_KEY}/create-checkout-session`, addToCartInfo)
       .then((response) => {
         console.log("Redirecting to : ", response);
         window.location.href = response.data.redirectUrl;
@@ -98,7 +98,7 @@ const Main = () => {
     console.log(JSON.parse(localStorage.getItem("product")) ?? []);
   };
   const updateStock = (product_name, stock) => {
-    axios.post("http://localhost:3000/product-settings/update-stock", {
+    axios.post(`${import.meta.env.VITE_APP_API_KEY}/product-settings/update-stock`, {
       product_name: product_name,
       stock: stock,
     });
@@ -177,7 +177,7 @@ const Main = () => {
               Login
             </Button>
           )}
-          {user && user?.user && user.user.role === "admin" && (
+          {user && user?.user && user.user.role === "admin" && isAuthenticated && (
             <Button icon={<SettingOutlined />} style={{ height: "44px" }} onClick={()=>{
               navigate("/admin");
             }}>

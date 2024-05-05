@@ -21,7 +21,7 @@ const Register = () => {
     };
     try {
       const response = await axios.post(
-        "http://localhost:3000/sign-up",
+        `${import.meta.env.VITE_APP_API_KEY}/sign-up`,
         formData
       );
       console.log(response.data);
