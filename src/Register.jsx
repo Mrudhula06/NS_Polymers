@@ -88,7 +88,7 @@ const Register = () => {
           <Form.Item
             label="Address"
             name="address"
-            rules={[{ required: true, message: "Please input your address" }]}
+            rules={[{ required: true, message: "Please input your address!" }]}
           >
             <Input.TextArea />
           </Form.Item>
