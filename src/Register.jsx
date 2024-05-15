@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./Register.css";
@@ -39,6 +39,18 @@ const Register = () => {
     console.log("Failed:", errorInfo);
   };
 
+  const validateEmail = (rule, value) => {
+     if (!value.endsWith("@gmail.com")) {
+      return Promise.reject("Email must end with @gmail.com!");
+    }
+    return Promise.resolve();
+  };
+  const validatePassword = (rule, value) => {
+    if (!value || value.length < 8) {
+      return Promise.reject("password must be at least 8 characters long!");
+    }
+  }
+
   return (
     <div className="register-container">
       <div className="register-image">
@@ -66,7 +78,10 @@ const Register = () => {
           <Form.Item
             label="Email"
             name="email"
-            rules={[{ required: true, message: "Please input your email!" }]}
+            rules={[
+              { required: true, message: "Please input your email!" },
+              { validator: validateEmail },
+            ]}
           >
             <Input />
           </Form.Item>
@@ -94,7 +109,10 @@ const Register = () => {
           <Form.Item
             label="Password"
             name="password"
-            rules={[{ required: true, message: "Please input your password!" }]}
+            rules={[{ required: true, message: "Please input your password!" },
+            { validator: validatePassword },
+            ]}
+              
           >
             <Input.Password />
           </Form.Item>
