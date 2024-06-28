@@ -1,46 +1,43 @@
 import { useEffect, useState } from "react";
-import fakeData from "./fakeData";
 import { ShoppingCartOutlined } from "@ant-design/icons";
-import { Button, Flex, Modal, Typography, Rate } from "antd";
-import { Card } from "antd";
+import { Button, Modal, Typography, Rate } from "antd";
 import axios from "axios";
+
 const { Text } = Typography;
+
 const Cards = ({
   selectedPriceRange,
   selectedBrands,
   selectedRating,
-  searchQuery,
+  searchQuery = '',
   setInfo,
   handleCheckout,
 }) => {
+  const [products, setProducts] = useState([]); // Initialize products state
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCard, setSelectedCard] = useState(null);
+
   const handleCancel = () => {
     setIsModalOpen(false);
   };
 
-  const [selectedCard, setSelectedCard] = useState(false);
   const onCardClick = (product) => {
     setSelectedCard(product);
     setIsModalOpen(true);
   };
-  console.log(selectedPriceRange);
-  const [products, setProducts] = useState([]);
+
   const brandFilter = (product) => {
     if (!selectedBrands.length) {
       return true;
     }
-    if (selectedBrands.length > 0 && selectedBrands.includes(product.company)) {
-      return true;
-    }
-    return false;
+    return selectedBrands.includes(product.company);
   };
 
   const ratingFilter = (product) => {
     if (!selectedRating.length) {
-      return true; // If no ratings are selected, return all products
+      return true;
     }
-    // Check if any of the selected ratings are less than or equal to the product's rating
     return selectedRating.some(
       (rating) => parseFloat(product.star_rating) >= parseFloat(rating)
     );
@@ -50,42 +47,33 @@ const Cards = ({
     if (!selectedPriceRange.length) {
       return true;
     }
-    if (selectedPriceRange.length > 0) {
-      return selectedPriceRange.some((range) => {
-        const [min, max] = range.split("-");
-        return (
-          product.price >= parseFloat(min) && product.price <= parseFloat(max)
-        );
-      });
-    }
+    return selectedPriceRange.some((range) => {
+      const [min, max] = range.split("-");
+      return (
+        product.price >= parseFloat(min) && product.price <= parseFloat(max)
+      );
+    });
   };
 
   useEffect(() => {
-    try {
-      const response = axios
-        .get(`${import.meta.env.VITE_APP_API_KEY}/product/get-products`)
-        .then((data) => {
-          console.log(data);
-          setProducts(data?.data?.products);
-        });
-    } catch (error) {
-      console.error("Error fetching image:", error);
-      return null; // Return null if there's an error fetching the image
-    }
-  }, []);
-  useEffect(() => {
-    const filtered =
-      products &&
-      products?.length &&
-      products?.filter((product) => {
-        if (
-          amountRangeFilter(product) &&
-          ratingFilter(product) &&
-          brandFilter(product)
-        ) {
-          return product;
-        }
+    axios
+      .get(`${import.meta.env.VITE_APP_API_KEY}/product/get-products`)
+      .then((data) => {
+        setProducts(data.data.products);
+      })
+      .catch((error) => {
+        console.error("Error fetching products:", error);
       });
+  }, []);
+
+  useEffect(() => {
+    const filtered = products.filter((product) => {
+      return (
+        amountRangeFilter(product) &&
+        ratingFilter(product) &&
+        brandFilter(product)
+      );
+    });
 
     setFilteredProducts(filtered);
   }, [selectedPriceRange, selectedBrands, selectedRating, products]);
@@ -99,12 +87,6 @@ const Cards = ({
     }
     return string.slice(0, number) + "...";
   };
-  // console.log(
-  //   "search==========",
-  //   filteredProducts?.filter((product) =>
-  //     product?.title.toLowerCase().includes(searchQuery.toLowerCase()),
-  //   ),
-  // );
 
   const handleAddToCart = (product) => {
     let productInfo = JSON.parse(localStorage.getItem("product")) || [];
@@ -128,11 +110,10 @@ const Cards = ({
   return (
     <section className="product">
       <div className="grid">
-        {filteredProducts &&
-          filteredProducts?.length &&
+        {filteredProducts.length > 0 &&
           filteredProducts
-            .filter((product) =>
-              product?.product_name
+            .filter((product) => 
+              product.product_name && product.product_name
                 .toLowerCase()
                 .includes(searchQuery.toLowerCase())
             )
@@ -147,23 +128,25 @@ const Cards = ({
                   <h5
                     className="card-title"
                     title={
-                      product.product_name?.length >= 50
-                        ? product?.product_name
+                      product.product_name.length >= 50
+                        ? product.product_name
                         : null
                     }
                   >
                     {Truncate(product.product_name, 55)}
                   </h5>
                   <div>
-                    <strong>{product?.company}</strong>
+                    <strong>{product.company}</strong>
                   </div>
                   <p className="card-description">
                     {Truncate(product.description, 55)}
                   </p>
                   <p className="card-price">₹{product.price}</p>
-                  <p className="card-rating"> <Rate allowHalf value={product.star_rating} disabled={true}/></p>
+                  <p className="card-rating">
+                    <Rate allowHalf value={product.star_rating} disabled={true} />
+                  </p>
                   <p>Available stock : {product.stock}</p>
-                  <Flex gap={6}>
+                  <div style={{ display: 'flex', gap: '6px' }}>
                     <Button
                       onClick={() => handleAddToCart(product)}
                       style={{ backgroundColor: "#FFDE00" }}
@@ -177,12 +160,12 @@ const Cards = ({
                     >
                       Buy Now
                     </Button>
-                  </Flex>
+                  </div>
                 </div>
               </div>
             ))}
         <Modal
-          title={<Text> {selectedCard?.product_name} </Text>}
+          title={<Text>{selectedCard?.product_name}</Text>}
           open={isModalOpen}
           onCancel={handleCancel}
           footer={[
@@ -204,45 +187,43 @@ const Cards = ({
             </Button>,
           ]}
         >
-          <Flex vertical>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
             <div className="modal-parentimg">
               <img
                 className="modal-img"
                 alt="PVC Conduit Pipes"
-                src={selectedCard.image}
+                src={selectedCard?.image}
               />
             </div>
-            <Flex className="width-full">
-              <Text strong className="width-18-5">
-                Brand :{" "}
+            <div style={{ display: 'flex', width: '100%' }}>
+              <Text strong style={{ width: '18.5%' }}>
+                Brand :
               </Text>
-              <Text className="width-50 text-align-left">
-                {" "}
-                {selectedCard?.company}{" "}
+              <Text style={{ width: '50%', textAlign: 'left' }}>
+                {selectedCard?.company}
               </Text>
-            </Flex>
-            <Flex className="width-full">
-              <Text strong className="width-50">
-                Description :{" "}
+            </div>
+            <div style={{ display: 'flex', width: '100%' }}>
+              <Text strong style={{ width: '50%' }}>
+                Description :
               </Text>
-              <Text> {selectedCard?.description} </Text>
-            </Flex>
-            <Flex className="width-full">
-              <Text strong className="width-18-5">
-                Price :{" "}
+              <Text>{selectedCard?.description}</Text>
+            </div>
+            <div style={{ display: 'flex', width: '100%' }}>
+              <Text strong style={{ width: '18.5%' }}>
+                Price :
               </Text>
-              <Text> ₹{selectedCard?.price} </Text>
-            </Flex>
-            <Flex className="width-full">
-              <Text strong className="width-18-5">
-                Rating :{" "}
+              <Text>₹{selectedCard?.price}</Text>
+            </div>
+            <div style={{ display: 'flex', width: '100%' }}>
+              <Text strong style={{ width: '18.5%' }}>
+                Rating :
               </Text>
               <Text>
-                {" "}
-                <Rate allowHalf value={selectedCard.star_rating} disabled={true}/>
+                <Rate allowHalf value={selectedCard?.star_rating} disabled={true} />
               </Text>
-            </Flex>
-          </Flex>
+            </div>
+          </div>
         </Modal>
       </div>
     </section>
